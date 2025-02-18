@@ -1,25 +1,18 @@
-import { Router } from "express";
-import { User } from "../entities/user.ts";
-import { AppDataSource } from "../data-source.ts";
-
-// Controllers
 import { userController } from "../controllers/user.ts";
 
-const userRepository = AppDataSource.getRepository(User);
+export const userRoutes = ({
+  app,
+  repository,
+  controller = userController,
+}) => {
+  const { getUser, getUserById, createUser, updateUser, deleteUser } =
+    controller(repository);
 
-const { getUser, getUserById, createUser, updateUser, deleteUser } =
-  userController(userRepository);
+  app.route("/api/users").get(getUser).post(createUser);
 
-const router = Router();
-
-router.get("/users", getUser);
-
-router.get("/users/:id", getUserById);
-
-router.post("/users", createUser);
-
-router.put("/users/:id", updateUser);
-
-router.delete("/users/:id", deleteUser);
-
-export default router;
+  app
+    .route("/api/users/:id")
+    .get(getUserById)
+    .put(updateUser)
+    .delete(deleteUser);
+};

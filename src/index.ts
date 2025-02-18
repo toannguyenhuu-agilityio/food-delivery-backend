@@ -3,8 +3,11 @@ import express from "express";
 import { AppDataSource } from "./data-source.ts";
 import dotenv from "dotenv";
 
-// Router
-import userRoutes from "./routes/userRoute.ts";
+// Entities
+import { User } from "./entities/user.ts";
+
+// Routes
+import { userRoutes } from "./routes/userRoute.ts";
 
 dotenv.config();
 
@@ -16,7 +19,8 @@ app.use(express.json());
 
 AppDataSource.initialize()
   .then(async () => {
-    app.use("/api", userRoutes);
+    const userRepository = AppDataSource.getRepository(User);
+    userRoutes({ app, repository: userRepository });
 
     // start express server
     app.listen(port, () => {
