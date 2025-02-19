@@ -26,7 +26,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     npm ci --include=dev
 USER node
 COPY . .
-CMD npm run dev
+CMD ["npm", "run", "dev"]
 
 # Create a production environment
 FROM base AS prod
@@ -34,13 +34,13 @@ FROM base AS prod
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
-RUN npm install husky --save-dev 
+    npm install --omit=dev
 USER node
 COPY . .
-CMD node src/index.ts
+CMD ["node", "src/index.ts"]
 
 FROM base AS test
+ENV NODE_ENV test
 # Install test dependencies
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
@@ -48,4 +48,4 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     npm ci --include=dev
 USER node
 COPY . .
-CMD npm run test
+CMD ["npm", "run", "test"]
