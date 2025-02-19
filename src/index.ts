@@ -5,9 +5,11 @@ import dotenv from "dotenv";
 
 // Entities
 import { User } from "./entities/user.ts";
+import { Dish } from "./entities/dish.ts";
 
 // Routes
 import { userRoutes } from "./routes/userRoute.ts";
+import { dishRoutes } from "./routes/dishRoute.ts";
 
 dotenv.config();
 
@@ -20,7 +22,10 @@ app.use(express.json());
 AppDataSource.initialize()
   .then(async () => {
     const userRepository = AppDataSource.getRepository(User);
+    const dishRepository = AppDataSource.getRepository(Dish);
+
     userRoutes({ app, repository: userRepository });
+    dishRoutes({ app, userRepository, dishRepository });
 
     // start express server
     app.listen(port, () => {
