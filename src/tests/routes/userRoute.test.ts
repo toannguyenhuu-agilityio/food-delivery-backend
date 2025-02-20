@@ -1,7 +1,7 @@
 import request from "supertest";
 import express from "express";
 
-import { userRoutes } from "../../routes/userRoute.ts";
+import { userRoutes } from "../../routes/user.ts";
 
 // Mock repository
 const mockRepository = {

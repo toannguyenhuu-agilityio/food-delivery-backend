@@ -7,6 +7,7 @@ import { Dish } from "../entities/dish.ts";
 
 // Types
 import { UserRole } from "../types/user.ts";
+import { DishCategory } from "../types/dish.ts";
 
 // Constants
 import {
@@ -199,6 +200,69 @@ export const dishController = ({
       } catch (error) {
         console.error("Error deleting dish with id ${req.params.id}:", error);
 
+        res
+          .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+          .send(GENERAL_MESSAGES.INTERNAL_SERVER_ERROR);
+      }
+    },
+
+    /**
+     * Retrieves a list of dishes based on the specified category, page, and limit.
+     *
+     * @param {Object} req - The request object containing the category, page, and limit parameters.
+     * @param {Object} res - The response object used to send the response. Sends a response
+     *   indicating the result of the dish retrieval process.
+     *
+     * @returns {Promise<void>} - A promise that resolves when the dishes are successfully retrieved.
+     *   or rejects if there is an error during the process.
+     *
+     * @throws {Error} - Throws an error if an unexpected issue occurs while retrieving the dishes,
+     *   such as database errors or validation issues.
+     * */
+    getDishes: async (req: Request, res: Response) => {
+      const { category, page, limit } = req.query;
+      const categoryParam = (category as DishCategory) || DishCategory.Main;
+
+      // Ensure the category is valid
+      if (!Object.values(DishCategory).includes(categoryParam)) {
+        return res
+          .status(STATUS_CODES.BAD_REQUEST)
+          .json({ message: "Invalid category" });
+      }
+
+      const pageParam = parseInt(page as string);
+      const limitParam = parseInt(limit as string);
+
+      // Ensure page and limit are valid
+      if ((page && limit && pageParam <= 0) || limitParam <= 0) {
+        return res
+          .status(STATUS_CODES.BAD_REQUEST)
+          .json({ message: "Invalid page or limit" });
+      }
+
+      const skip = (pageParam - 1) * limitParam;
+
+      try {
+        const [dishes, total = 0] = await dishRepository.findAndCount({
+          where: { category: categoryParam },
+          take: limitParam,
+          skip,
+          order: { name: "DESC" },
+        });
+
+        const totalPages = Math.ceil(total / limitParam);
+
+        res.send({
+          data: dishes,
+          pagination: {
+            page: pageParam,
+            limit: limitParam,
+            totalItems: total,
+            totalPages,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching dishes:", error);
         res
           .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
           .send(GENERAL_MESSAGES.INTERNAL_SERVER_ERROR);

@@ -6,13 +6,15 @@ export const dishRoutes = ({
   userRepository,
   controller = dishController,
 }) => {
-  const { createDish, getDishByID, deleteDishByID, updateDishByID } =
+  const { createDish, getDishes, getDishByID, deleteDishByID, updateDishByID } =
     controller({
       userRepository,
       dishRepository,
     });
 
   app.route("/dish").post(createDish);
+
+  app.route("/dishes").get(getDishes);
 
   app
     .route("/dish/:id")

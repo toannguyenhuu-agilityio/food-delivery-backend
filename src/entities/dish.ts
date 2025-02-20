@@ -3,6 +3,9 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 // Entities
 import { User } from "./user.ts";
 
+// Types
+import { DishCategory } from "../types/dish.ts";
+
 @Entity()
 export class Dish {
   @PrimaryGeneratedColumn("uuid")
@@ -20,8 +23,8 @@ export class Dish {
   @Column()
   image: string;
 
-  @Column()
-  category: string;
+  @Column({ type: "enum", enum: DishCategory, default: DishCategory.Main })
+  category: DishCategory;
 
   @Column({ type: "boolean", default: true, nullable: true })
   isActive: boolean | null;
