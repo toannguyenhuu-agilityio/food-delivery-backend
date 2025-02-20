@@ -1,7 +1,7 @@
 import request from "supertest";
 import express from "express";
 
-import { userRoutes } from "../../routes/userRoute.ts";
+import { userRoutes } from "../../routes/user.ts";
 
 // Mock repository
 const mockRepository = {
@@ -40,21 +40,21 @@ describe("User Routes", () => {
   });
 
   it("should get all users", async () => {
-    const response = await request(app).get("/api/users");
+    const response = await request(app).get("/users");
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "Get all users" });
   });
 
   it("should get user by ID", async () => {
-    const response = await request(app).get("/api/users/1");
+    const response = await request(app).get("/users/1");
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "Get user by ID" });
   });
 
   it("should create a new user", async () => {
-    const response = await request(app).post("/api/users").send({
+    const response = await request(app).post("/users").send({
       name: "John Doe",
       email: "john@example.com",
       password: "password",
@@ -65,7 +65,7 @@ describe("User Routes", () => {
   });
 
   it("should update a user", async () => {
-    const response = await request(app).put("/api/users/1").send({
+    const response = await request(app).put("/users/1").send({
       name: "John Doe",
       email: "john@example.com",
       password: "password",
@@ -76,7 +76,7 @@ describe("User Routes", () => {
   });
 
   it("should delete a user", async () => {
-    const response = await request(app).delete("/api/users/1");
+    const response = await request(app).delete("/users/1");
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ message: "User deleted" });
