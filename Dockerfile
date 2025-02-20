@@ -1,7 +1,6 @@
-ARG NODE_VERSION=18.0.0
+ARG NODE_VERSION=18
 
 FROM node:${NODE_VERSION}-alpine AS base
-
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -12,39 +11,52 @@ COPY package*.json ./
 # Install dependencies (for all environments)
 RUN npm install --production=false
 
-# Install nodemon globally
-RUN npm install -g nodemon 
+# Install nodemon globally for dev environments
+RUN npm install -g nodemon
 
 EXPOSE 3000
 
-# Create a development environment
+# Stage for Development environment
 FROM base AS dev
+ENV NODE_ENV=development
+
 # Install development dependencies
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --include=dev
-USER node
-COPY . .
-CMD npm run dev
+RUN npm ci --include=dev
 
-# Create a production environment
+USER node
+
+# Copy the rest of the source code for the dev environment
+COPY . .
+
+# Start the app in development mode (using nodemon or similar)
+CMD ["npm", "run", "dev"]
+
+# Stage for Production environment
 FROM base AS prod
-# Install production dependencies
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
-USER node
-COPY . .
-CMD node src/index.ts
+ENV NODE_ENV=production
 
-FROM base AS test
-# Install test dependencies
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --include=dev
+# Install production dependencies   
+RUN npm ci --omit=dev
+
 USER node
+
+# Copy the rest of the source code for the prod environment
 COPY . .
-CMD npm run test
+
+# Command to start the production app
+CMD ["node", "src/index.ts"]
+
+# Stage for Testing environment
+FROM base AS test
+ENV NODE_ENV=test
+
+# Install test dependencies (dev dependencies included)
+RUN npm ci --include=dev
+
+USER node
+
+# Copy the rest of the source code for the test environment
+COPY . .
+
+# Command to run the tests using Jest or another tool
+CMD ["npm", "run", "test"]
