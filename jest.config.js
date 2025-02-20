@@ -24,7 +24,7 @@ module.exports = {
     ".module.ts",
     "<rootDir>/src/index.ts",
     "<rootDir>/src/constants/*",
-    "<rootDir>/src/__mockData__/*",
+    "<rootDir>/src/__mocks__/*",
     "<rootDir>/src/migrations/*",
     "<rootDir>/src/entities/*",
     "<rootDir>/src/data-source.ts",
